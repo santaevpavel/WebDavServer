@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,7 +59,7 @@ namespace WebDAVServer.core {
             listenerRequest.InputStream.Read(body, 0, body.Length);
             webRequest.GetRequestStream().Write(body, 0, body.Length);
 
-            WebResponse webResponse = webRequest.GetResponse();*/
+            WebResponse webResponse = webRequest.GetRequest();*/
         }
     }
 }
