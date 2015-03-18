@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using WebDAVServer.api.request;
 using WebDAVServer.api.request.@base;
 
 namespace WebDAVServer.core {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using WebDAVServer.api.request.@base;
@@ -6,16 +7,19 @@ using WebDAVServer.api.response;
 using WebDAVServer.file;
 
 namespace WebDAVServer.api.request {
-    internal sealed class GetRequest : Request {
+    internal sealed class PutRequest : Request {
 
         private String mFileName;
+        private readonly Stream fileStream;
 
-        public GetRequest(HttpListenerRequest httpListenerRequest) : base(httpListenerRequest) {
+        public PutRequest(HttpListenerRequest httpListenerRequest)
+            : base(httpListenerRequest) {
             requestType = RequestType.GET;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
             mFileName = url.Remove(0, host.Length);
-            Console.WriteLine("Parsed GET REQUEST " + ToString());
+            fileStream = httpListenerRequest.InputStream;
+            Console.WriteLine("Parsed PUT REQUEST " + ToString());
         }
 
         public String getFileName() {
@@ -35,20 +39,20 @@ namespace WebDAVServer.api.request {
             task.Start();
             return task;
         }
-        private void doCommand() {
-
+        private async void doCommand() {
+            using (var file = FileManager.getInstanse().createFile(mFileName)) {
+                var buffer = new byte[1024];
+                int i;
+                while (0 < (i = await fileStream.ReadAsync(buffer, 0, buffer.Length))) {
+                    await file.WriteAsync(buffer, 0, i);
+                }
+                file.Close();
+                fileStream.Close();
+            }
         }
 
         public override Task<Response> getResponse() {
             var response = new Response(200); 
-            //const string responseString = "<HTML><BODY> Hello world!</BODY></HTML>";
-            //var buffer = Encoding.UTF8.GetBytes(responseString);
-            //response.setContentLength(buffer.Length);
-            var file = FileManager.getInstanse().getFile(mFileName);
-            if (null != file) {
-                response.setContentLength(file.Length);
-                response.setData(file);
-            }
             var task = new Task<Response>(() => response);
             task.Start();
             return task;

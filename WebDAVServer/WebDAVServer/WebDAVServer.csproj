@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\api\request\PutRequest.cs" />
     <Compile Include="src\api\request\PropFindRequest.cs" />
     <Compile Include="src\api\request\GetRequest.cs" />
     <Compile Include="src\api\request\base\Request.cs" />

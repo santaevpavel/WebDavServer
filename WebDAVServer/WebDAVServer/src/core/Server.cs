@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
-using System.Text;
 using System.Threading;
 using WebDAVServer.file;
 
@@ -17,7 +16,7 @@ namespace WebDAVServer.core {
             mPort = port;
         }
 
-        static void RestartAsAdmin() {
+        public static void restartAsAdmin() {
             var startInfo = new ProcessStartInfo("WebDAVServer.exe") { Verb = "runas" };
             Process.Start(startInfo);
             Environment.Exit(0);

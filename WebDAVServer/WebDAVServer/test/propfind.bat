@@ -1,0 +1,1 @@
+curl -X PROPFIND -H "depth: 1" http://localhost:27999/

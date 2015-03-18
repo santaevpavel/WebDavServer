@@ -3,7 +3,7 @@
 namespace WebDAVServer {
     class Program {
         static void Main(string[] args) {
-            var server = new Server("", 27999);
+            var server = new Server("../../res", 27999);
             server.start();
         }
     }
