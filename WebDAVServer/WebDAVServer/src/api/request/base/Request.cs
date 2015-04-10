@@ -22,5 +22,6 @@ namespace WebDAVServer.api.request.@base {
         public abstract Task doCommandAsync();
 
         public abstract Task<Response> getResponse();
+
     }
 }

@@ -42,6 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\api\helpers\PropFindHelper.cs" />
+    <Compile Include="src\api\request\OptionsRequest.cs" />
+    <Compile Include="src\api\request\TestRequest.cs" />
     <Compile Include="src\api\request\PutRequest.cs" />
     <Compile Include="src\api\request\PropFindRequest.cs" />
     <Compile Include="src\api\request\GetRequest.cs" />

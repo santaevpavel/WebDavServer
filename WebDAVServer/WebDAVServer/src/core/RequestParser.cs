@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using WebDAVServer.api.request;
 using WebDAVServer.api.request.@base;
 
 namespace WebDAVServer.core {
@@ -15,6 +17,10 @@ namespace WebDAVServer.core {
         private static Request parseRequest(HttpListenerRequest request) {
             var types = RequestType.values().Where(type => type.getHttpMethod().Equals(request.HttpMethod));
             var requestTypes = types as RequestType[] ?? types.ToArray();
+            if (0 == requestTypes.Length) {
+                Console.WriteLine("Getted unknown request " + request.HttpMethod);
+                return new TestRequest(request);
+            }
             if (null != requestTypes[0]) {
                 var type = requestTypes[0].getType();
                 var constructorInfo = type.GetConstructors()[0];

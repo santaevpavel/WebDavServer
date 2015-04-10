@@ -1,85 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <d:multistatus xmlns:d="DAV:">
-  <d:response>
-    <d:href>
-      /
-    </d:href>
-    <d:propstat>
-      <d:status>
-        HTTP/1.1 200 OK
-      </d:status>
-      <d:prop>
-        <d:creationdate>
-          1970-01-01T00:00:00Z
-        </d:creationdate>
-        <d:displayname>
-          disk
-        </d:displayname>
-        <d:getcontentlength>
-          0
-        </d:getcontentlength>
-        <d:getlastmodified>
-          Thu, 01 Jan 1970 00:00:00 GMT
-        </d:getlastmodified>
-        <d:resourcetype>
-          <d:collection/>
-        </d:resourcetype>
-      </d:prop>
-    </d:propstat>
-  </d:response>
-  <d:response>
-    <d:href>
-      /Documents/
-    </d:href>
-    <d:propstat>
-      <d:status>
-        HTTP/1.1 200 OK
-      </d:status>
-      <d:prop>
-        <d:creationdate>
-          2012-03-24T09:00:43Z
-        </d:creationdate>
-        <d:displayname>
-          Documents
-        </d:displayname>
-        <d:getcontentlength>
-          0
-        </d:getcontentlength>
-        <d:getlastmodified>
-          Sat, 24 Mar 2012 09:00:43 GMT
-        </d:getlastmodified>
-        <d:resourcetype>
-          <d:collection/>
-        </d:resourcetype>
-      </d:prop>
-    </d:propstat>
-  </d:response>
-  <d:response>
-    <d:href>
-      /readme.pdf
-    </d:href>
-    <d:propstat>
-      <d:status>
-        HTTP/1.1 200 OK
-      </d:status>
-      <d:prop>
-        <d:creationdate>
-          2012-04-09T10:56:13Z
-        </d:creationdate>
-        <d:displayname>
-          readme.pdf
-        </d:displayname>
-        <d:getcontentlength>
-          455833
-        </d:getcontentlength>
-        <d:getcontenttype>
-          application/pdf
-        </d:getcontenttype>
-        <d:getlastmodified>
-          Mon, 09 Apr 2012 10:56:13 GMT
-        </d:getlastmodified>
-        <d:resourcetype/>
-      </d:prop>
-    </d:propstat>
-  </d:response>
+<d:response>
+<d:href>/%D0%A4%D0%BE%D1%82%D0%BE/</d:href>
+<d:propstat><d:status>HTTP/1.1 200 OK</d:status>
+<d:prop>
+<d:resourcetype>
+<d:collection/>
+</d:resourcetype>
+<d:getlastmodified>Fri, 02 Jan 2015 18:44:10 GMT</d:getlastmodified>
+<d:displayname>Фото</d:displayname><d:creationdate>2015-01-02T18:44:10Z
+</d:creationdate>
+</d:prop></d:propstat>
+</d:response>
+<d:response>
+<d:href>/%D0%A4%D0%BE%D1%82%D0%BE/%D0%A4%D0%BE%D1%82%D0%BA%D0%B8.rar</d:href>
+<d:propstat><d:status>HTTP/1.1 200 OK</d:status><d:prop><d:resourcetype/>
+<d:getlastmodified>Fri, 02 Jan 2015 18:47:43 GMT</d:getlastmodified>
+<d:getetag>15f669a6a167e6f06e19eca28bccb4ae</d:getetag><d:getcontenttype>application/x-rar</d:getcontenttype>
+<d:getcontentlength>371298775</d:getcontentlength><d:displayname>Фотки.rar</d:displayname>
+<d:creationdate>2015-01-02T18:47:43Z</d:creationdate></d:prop></d:propstat></d:response>
 </d:multistatus>

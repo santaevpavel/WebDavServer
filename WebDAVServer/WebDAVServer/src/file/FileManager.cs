@@ -28,6 +28,16 @@ namespace WebDAVServer.file {
             return File.Open(path, FileMode.Open);
         }
 
+        public FileInfo getFileInfo(String url) {
+            var path = mRoot + url;
+            return new FileInfo(path);
+        }
+
+        public DirectoryInfo getDirInfo(String url) {
+            var path = mRoot + url;
+            return new DirectoryInfo(path);
+        }
+
         public FileStream createFile(String url) {
             var path = mRoot + url;
             return File.Open(path, FileMode.Create);
