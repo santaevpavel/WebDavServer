@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,8 +43,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\api\helpers\LockHelper.cs" />
     <Compile Include="src\api\helpers\PropFindHelper.cs" />
+    <Compile Include="src\api\request\MoveRequest.cs" />
     <Compile Include="src\api\request\OptionsRequest.cs" />
+    <Compile Include="src\api\request\MkColRequest.cs" />
+    <Compile Include="src\api\request\CopyRequest.cs" />
+    <Compile Include="src\api\request\LockRequest.cs" />
+    <Compile Include="src\api\request\DeleteRequest.cs" />
     <Compile Include="src\api\request\TestRequest.cs" />
     <Compile Include="src\api\request\PutRequest.cs" />
     <Compile Include="src\api\request\PropFindRequest.cs" />
@@ -51,10 +58,10 @@
     <Compile Include="src\api\request\base\Request.cs" />
     <Compile Include="src\api\request\base\RequestType.cs" />
     <Compile Include="src\api\response\Response.cs" />
-    <Compile Include="src\core\Client.cs" />
     <Compile Include="src\core\RequestParser.cs" />
     <Compile Include="src\core\Server.cs" />
     <Compile Include="src\file\FileManager.cs" />
+    <Compile Include="src\file\LockManager.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="src\ProgramCostants.cs" />
   </ItemGroup>
@@ -64,6 +71,12 @@
   <ItemGroup>
     <Folder Include="res\" />
     <Folder Include="src\web\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NLog.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

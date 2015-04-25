@@ -15,13 +15,13 @@ namespace WebDAVServer.api.request.@base {
             mRequest = httpListenerRequest;
         }
 
-        public RequestType getRequestType() {
+        internal RequestType getRequestType() {
             return requestType;
         }
 
-        public abstract Task doCommandAsync();
+        internal abstract Task doCommandAsync();
 
-        public abstract Task<Response> getResponse();
+        internal abstract Task<Response> getResponse();
 
     }
 }

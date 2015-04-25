@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 
 namespace WebDAVServer.api.response {
@@ -7,33 +9,51 @@ namespace WebDAVServer.api.response {
         private readonly int mCode;
         private Stream mData;
         private long contentLength;
+        private readonly Dictionary<String, String> headers;
 
-        public Response(int code) {
+        internal Response(int code) {
             mCode = code;
+            headers = new Dictionary<string, string>();
         }
 
-        public void setData(Stream data) {
+        internal void setData(Stream data) {
             mData = data;
         }
 
-        public void setContentLength(long length) {
+        internal void setContentLength(long length) {
             contentLength = length;
         }
 
-        public virtual async void setResponse(HttpListenerResponse response) {
+        internal void addHeaderValue(String key, String value) {
+            headers.Add(key, value);
+        }
+        
+        internal virtual async void setResponse(HttpListenerResponse response) {
+            if (null == response) {
+                throw new ArgumentNullException("response");
+            }
             response.StatusCode = mCode;
             response.ContentLength64 = contentLength;
+
+            var keys = headers.Keys;
+            foreach (var key in keys) {
+                var val = headers[key];
+                response.AppendHeader(key, val);
+            }
             if (null == mData) {
                 response.OutputStream.Close();
                 return;
             }
             var buffer = new byte[1024];
             using (var output = response.OutputStream) {
-                int i;
-                while (0 < (i = await mData.ReadAsync(buffer, 0, buffer.Length))) {
-                    await output.WriteAsync(buffer, 0, i);
+                while (true) {
+                    var i = await mData.ReadAsync(buffer, 0, buffer.Length);
+                    if (i > 0) {
+                        await output.WriteAsync(buffer, 0, i);
+                    } else {
+                        break;
+                    }
                 }
-                output.Close();
                 mData.Close();
             }
         }

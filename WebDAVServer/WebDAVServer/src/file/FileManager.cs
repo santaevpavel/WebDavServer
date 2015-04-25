@@ -8,11 +8,11 @@ namespace WebDAVServer.file {
 
         private readonly String mRoot;
 
-        public static void init(String root) {
+        internal static void init(String root) {
             instance = new FileManager(root);
         }
 
-        public static FileManager getInstanse() {
+        internal static FileManager getInstanse() {
             if (null == instance) {
                 throw new Exception("You should init before get instance");
             } 
@@ -23,24 +23,52 @@ namespace WebDAVServer.file {
             mRoot = root;
         }
 
-        public FileStream getFile(String url) {
+        internal FileStream getFile(String url) {
             var path = mRoot + url;
             return File.Open(path, FileMode.Open);
         }
 
-        public FileInfo getFileInfo(String url) {
+        internal FileInfo getFileInfo(String url) {
             var path = mRoot + url;
             return new FileInfo(path);
         }
 
-        public DirectoryInfo getDirInfo(String url) {
+        internal DirectoryInfo getDirInfo(String url) {
             var path = mRoot + url;
             return new DirectoryInfo(path);
         }
 
-        public FileStream createFile(String url) {
+        internal FileStream createFile(String url) {
             var path = mRoot + url;
             return File.Open(path, FileMode.Create);
         }
+
+        internal bool copyFile(String src, String dst, bool overwrite) {
+            var res = !getFileInfo(dst).Exists;
+            File.Copy(mRoot + src, mRoot + dst, overwrite);
+            return res;
+        }
+
+        internal bool moveFile(String src, String dst, bool overwrite) {
+            var res = !getFileInfo(dst).Exists;
+            if (overwrite) {
+                File.Delete(mRoot + dst);
+            }
+            File.Move(mRoot + src, mRoot + dst);
+            return res;
+        }
+
+        internal void deleteFileOrDir(String url) {
+            var path = mRoot + url;
+            var file = new FileInfo(path);
+            //var dir = new DirectoryInfo(path);
+            if (file.Exists) {
+                File.Delete(path);
+            } else {
+                Directory.Delete(path);
+            }
+            
+        }
+        
     }
 }

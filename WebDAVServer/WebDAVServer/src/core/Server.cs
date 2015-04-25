@@ -2,27 +2,30 @@
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using NLog;
 using WebDAVServer.file;
 
 namespace WebDAVServer.core {
     internal sealed class Server {
+
+        private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
         private readonly int mPort;
         private readonly HttpListener mListener = new HttpListener();
 
-        public Server(String path, int port) {
+        internal Server(String path, int port) {
             if (null != path) {
                 FileManager.init(path);
             }
             mPort = port;
         }
 
-        public static void restartAsAdmin() {
+        internal static void restartAsAdmin() {
             var startInfo = new ProcessStartInfo("WebDAVServer.exe") { Verb = "runas" };
             Process.Start(startInfo);
             Environment.Exit(0);
         }
 
-        public void start() {
+        internal void start() {
             if (!HttpListener.IsSupported) {
                 Console.WriteLine("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
@@ -39,14 +42,56 @@ namespace WebDAVServer.core {
         }
 
         private async void readAndReply() {
+            var isFailed = false;
             var context = await mListener.GetContextAsync();
             var request = context.Request;
+            logRequest(request);
             var requestObj = await RequestParser.parseRequestAsync(request);
-            await requestObj.doCommandAsync();
+            try {
+                await requestObj.doCommandAsync();
+            } catch (Exception e) {
+                LOGGER.Error(e.Message);
+                isFailed = true;
+            }
             var response = await requestObj.getResponse();
-            response.setResponse(context.Response);
+            if (!isFailed) {
+                response.setResponse(context.Response);
+            } else {
+                context.Response.StatusCode = 500;
+                context.Response.ContentLength64 = 0;
+                context.Response.OutputStream.Close();
+            }
+            logResponse(context.Response);
             lock (mListener) {
                 Monitor.Pulse(mListener);
+            }
+        }
+
+        private static void logRequest(HttpListenerRequest request) {
+            if (null == request) {
+                throw new ArgumentNullException("request");
+            }
+            LOGGER.Trace("HTTP " + request.ProtocolVersion + " REQUEST " + request.HttpMethod + " " + request.Url);
+            var keys = request.Headers.AllKeys;
+            foreach (var key in keys) {
+                var strings = request.Headers.GetValues(key);
+                if (strings != null) {
+                    LOGGER.Trace("  " + key + " -> " + strings[0]);
+                }
+            }
+        }
+
+        private static void logResponse(HttpListenerResponse response) {
+            if (null == response) {
+                throw new ArgumentNullException("response");
+            }
+            LOGGER.Trace("RESPONSE " + response.StatusCode + " " + response.StatusDescription);
+            var keys = response.Headers.AllKeys;
+            foreach (var key in keys) {
+                var strings = response.Headers.GetValues(key);
+                if (strings != null) {
+                    LOGGER.Trace("  " + key + " -> " + strings[0]);
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿namespace WebDAVServer {
     static class ProgramCostants {
 
-        public const int DEFAUT_SERVER_PORT = 80;
+        internal const int DEFAUT_SERVER_PORT = 27999;
+        internal const bool DEBUG = true;
     }
 }

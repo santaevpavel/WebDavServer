@@ -10,7 +10,11 @@ namespace WebDAVServer.api.request {
 
         private String mFileName;
 
-        public GetRequest(HttpListenerRequest httpListenerRequest) : base(httpListenerRequest) {
+        public GetRequest(HttpListenerRequest httpListenerRequest)
+            : base(httpListenerRequest) {
+            if (null == httpListenerRequest) {
+                throw new ArgumentNullException("httpListenerRequest");
+            }
             requestType = RequestType.GET;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
@@ -18,11 +22,11 @@ namespace WebDAVServer.api.request {
             Console.WriteLine("Parsed GET REQUEST " + ToString());
         }
 
-        public String getFileName() {
+        internal String getFileName() {
             return mFileName;
         }
 
-        public void setFileName(String fileName) {
+        internal void setFileName(String fileName) {
             mFileName = fileName;
         }
 
@@ -30,7 +34,7 @@ namespace WebDAVServer.api.request {
             return string.Format("mFileName: {0}", mFileName);
         }
 
-        public override Task doCommandAsync() {
+        internal override Task doCommandAsync() {
             var task = new Task(doCommand);
             task.Start();
             return task;
@@ -39,21 +43,20 @@ namespace WebDAVServer.api.request {
 
         }
 
-        public override Task<Response> getResponse() {
-            var response = new Response(200); 
-            //const string responseString = "<HTML><BODY> Hello world!</BODY></HTML>";
-            //var buffer = Encoding.UTF8.GetBytes(responseString);
-            //response.setContentLength(buffer.Length);
-            var file = FileManager.getInstanse().getFile(mFileName);
-            if (null != file) {
-                response.setContentLength(file.Length);
-                response.setData(file);
-            }
-            var task = new Task<Response>(() => response);
+        internal override Task<Response> getResponse() {
+            var task = new Task<Response>(() => {
+                var response = new Response(200);
+                var file = FileManager.getInstanse().getFile(mFileName);
+                if (null != file) {
+                    response.setContentLength(file.Length);
+                    response.setData(file);
+                }
+                return response;
+            });
             task.Start();
             return task;
         }
 
-       
+
     }
 }

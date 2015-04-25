@@ -1,24 +1,35 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using WebDAVServer.api.request.@base;
 using WebDAVServer.api.response;
+using WebDAVServer.file;
 
 namespace WebDAVServer.api.request {
-    internal sealed class TestRequest : Request {
+    internal sealed class DeleteRequest : Request {
 
-        private readonly String mFileName;
+        private String mFileName;
+        private int code;
 
-        public TestRequest(HttpListenerRequest httpListenerRequest)
+        public DeleteRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
-            //requestType = RequestType.GET;
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
+            requestType = RequestType.DELETE;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
             mFileName = url.Remove(0, host.Length);
-            Console.WriteLine("Parsed TEST " + httpListenerRequest.HttpMethod + " REQUEST " + ToString());
+            Console.WriteLine("Parsed DELETE REQUEST " + ToString());
+        }
+
+        internal String getFileName() {
+            return mFileName;
+        }
+
+        internal void setFileName(String fileName) {
+            mFileName = fileName;
         }
 
         public override string ToString() {
@@ -31,18 +42,18 @@ namespace WebDAVServer.api.request {
             return task;
         }
         private void doCommand() {
-
+            try {
+                FileManager.getInstanse().deleteFileOrDir(mFileName);
+                code = 200;
+            } catch (FileNotFoundException) {
+                code = 404;
+            } catch (DirectoryNotFoundException) {
+                code = 404;
+            }
         }
 
         internal override Task<Response> getResponse() {
-            var response = new Response(200);
-            /*var file = FileManager.getInstanse().getFile(mFileName);
-            if (null != file) {
-                response.setContentLength(file.Length);
-                response.setData(file);
-            }*/
-            response.setContentLength(0);
-            response.setData(null);
+            var response = new Response(code);
             var task = new Task<Response>(() => response);
             task.Start();
             return task;

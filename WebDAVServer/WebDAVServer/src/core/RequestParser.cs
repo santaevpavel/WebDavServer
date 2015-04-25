@@ -8,7 +8,7 @@ using WebDAVServer.api.request.@base;
 namespace WebDAVServer.core {
     internal sealed class RequestParser {
 
-        public static Task<Request> parseRequestAsync(HttpListenerRequest request) {
+        internal static Task<Request> parseRequestAsync(HttpListenerRequest request) {
             var res = new Task<Request>(() => parseRequest(request));
             res.Start();
             return res;
