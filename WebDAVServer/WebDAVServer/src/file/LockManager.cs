@@ -23,8 +23,12 @@ namespace WebDAVServer.file {
             locks.Add(uri, lockInfo);
         }
 
-        internal void unlock(String uri, String token) {
+        internal bool unlock(String uri, String token) {
+            if (!locks.ContainsKey(uri) || !locks[uri].lockToken.Equals(token)) {
+                return false;
+            }
             locks.Remove(uri);
+            return true;
         }
     }
 

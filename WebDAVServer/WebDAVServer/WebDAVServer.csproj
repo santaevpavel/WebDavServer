@@ -45,12 +45,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\api\helpers\LockHelper.cs" />
     <Compile Include="src\api\helpers\PropFindHelper.cs" />
+    <Compile Include="src\api\request\UnlockRequest.cs" />
     <Compile Include="src\api\request\MoveRequest.cs" />
     <Compile Include="src\api\request\OptionsRequest.cs" />
     <Compile Include="src\api\request\MkColRequest.cs" />
     <Compile Include="src\api\request\CopyRequest.cs" />
     <Compile Include="src\api\request\LockRequest.cs" />
     <Compile Include="src\api\request\DeleteRequest.cs" />
+    <Compile Include="src\api\request\PropPatchRequest.cs" />
     <Compile Include="src\api\request\TestRequest.cs" />
     <Compile Include="src\api\request\PutRequest.cs" />
     <Compile Include="src\api\request\PropFindRequest.cs" />

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using NLog;
+using WebDAVServer.api.request.@base;
 using WebDAVServer.file;
 
 namespace WebDAVServer.core {
@@ -47,6 +48,10 @@ namespace WebDAVServer.core {
             var request = context.Request;
             logRequest(request);
             var requestObj = await RequestParser.parseRequestAsync(request);
+            if (requestObj.getRequestType().Equals(RequestType.PUT)) {
+                context.Response.StatusCode = 100;
+                context.Response.ContentLength64 = 0;
+            }
             try {
                 await requestObj.doCommandAsync();
             } catch (Exception e) {
@@ -62,6 +67,7 @@ namespace WebDAVServer.core {
                 context.Response.OutputStream.Close();
             }
             logResponse(context.Response);
+            //context.Response.Close();
             lock (mListener) {
                 Monitor.Pulse(mListener);
             }

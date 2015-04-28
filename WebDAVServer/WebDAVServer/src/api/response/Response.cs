@@ -32,9 +32,8 @@ namespace WebDAVServer.api.response {
             if (null == response) {
                 throw new ArgumentNullException("response");
             }
-            response.StatusCode = mCode;
             response.ContentLength64 = contentLength;
-
+            response.StatusCode = mCode;
             var keys = headers.Keys;
             foreach (var key in keys) {
                 var val = headers[key];
@@ -56,6 +55,7 @@ namespace WebDAVServer.api.response {
                 }
                 mData.Close();
             }
+            response.Close();
         }
     }
 }

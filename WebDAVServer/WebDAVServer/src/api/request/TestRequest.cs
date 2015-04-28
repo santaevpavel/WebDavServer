@@ -11,7 +11,7 @@ namespace WebDAVServer.api.request {
 
         public TestRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
-            //requestType = RequestType.GET;
+            requestType = RequestType.GET;
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }

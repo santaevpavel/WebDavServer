@@ -14,12 +14,13 @@ namespace WebDAVServer.api.request {
         private String mFileName;
         private readonly Stream fileStream;
         private int code;
-
+        private HttpListenerRequest mRequest;
         public PutRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
+            mRequest = httpListenerRequest;
             requestType = RequestType.PUT;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
@@ -45,22 +46,25 @@ namespace WebDAVServer.api.request {
             task.Start();
             return task;
         }
-        private async void doCommand() {
+        private void doCommand() {
             if (FileManager.getInstanse().getFileInfo(mFileName).Exists) {
-                code = 207;
-                return;
+                //code = 207;
+                FileManager.getInstanse().deleteFileOrDir(mFileName);
+                //return;
             }
             if (FileManager.getInstanse().getDirInfo(mFileName).Exists) {
-                code = 207;
-                return;
+                //code = 207;
+                FileManager.getInstanse().deleteFileOrDir(mFileName);
+                //return;
             }
+            code = 201;
             using (var file = FileManager.getInstanse().createFile(mFileName)) {
                 var buffer = new byte[1024 * 1024];
                 try {
                     while (true) {
-                        var i = await fileStream.ReadAsync(buffer, 0, buffer.Length);
+                        var i = fileStream.Read(buffer, 0, buffer.Length);
                         if (i > 0) {
-                            await file.WriteAsync(buffer, 0, i);
+                            file.Write(buffer, 0, i);
                         } else {
                             break;
                         }
@@ -69,7 +73,7 @@ namespace WebDAVServer.api.request {
                     Console.WriteLine(e.Message);
                 }
                 fileStream.Close();
-                code = 200;
+                code = 201;
             }
         }
 
@@ -77,7 +81,7 @@ namespace WebDAVServer.api.request {
             var task = new Task<Response>(() => {
                 Response response;
                 switch (code) {
-                    case 200: {
+                    case 201: {
                             response = new Response(200);
                             return response;
                         }
