@@ -7,14 +7,15 @@ using NLog;
 using WebDAVServer.api.helpers;
 using WebDAVServer.api.request.@base;
 using WebDAVServer.api.response;
-using WebDAVServer.file;
 
 namespace WebDAVServer.api.request {
     internal sealed class PropPatchRequest : Request {
 
         private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
         private String mPath;
-        private Stream stream;
+        private readonly Stream inStream;
+        private String content;
+        private String responseText;
 
         public PropPatchRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
@@ -25,15 +26,8 @@ namespace WebDAVServer.api.request {
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
             mPath = url.Remove(0, host.Length);
-            stream = httpListenerRequest.InputStream;
+            inStream = httpListenerRequest.InputStream;
             Console.WriteLine("Parsed PROPPATCH REQUEST " + ToString());
-            var keys = httpListenerRequest.Headers.AllKeys;
-            foreach (var key in keys) {
-                var strings = httpListenerRequest.Headers.GetValues(key);
-                if (strings != null) {
-                    Console.WriteLine(key + "->" + strings[0]);
-                }
-            }
         }
 
         internal String getPath() {
@@ -54,19 +48,26 @@ namespace WebDAVServer.api.request {
             var offset = 0;
             try {
                 int count;
-                while (0 < (count = stream.Read(buffer, offset, buffer.Length - offset))) {
+                while (0 < (count = inStream.Read(buffer, offset, buffer.Length - offset))) {
                     offset += count;
                 }
             } catch (HttpListenerException e) {
                 Console.WriteLine(e.Message);
             }
-            var content = Encoding.UTF8.GetString(buffer, 0, offset);
+            content = Encoding.UTF8.GetString(buffer, 0, offset);
             LOGGER.Trace(content);
+            responseText = PropPatchHelper.parsePropPatchContent(mPath, content);
         }
 
         internal override Task<Response> getResponse() {
             var task = new Task<Response>(() => {
-                var response = new Response(200);
+                var response = new Response(207);
+                if (null == responseText) {
+                    return new Response(200);
+                }
+                Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseText));
+                response.setContentLength(stream.Length);
+                response.setData(stream);
                 return response;
             });
             task.Start();

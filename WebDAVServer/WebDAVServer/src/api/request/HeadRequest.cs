@@ -3,22 +3,31 @@ using System.Net;
 using System.Threading.Tasks;
 using WebDAVServer.api.request.@base;
 using WebDAVServer.api.response;
+using WebDAVServer.file;
 
 namespace WebDAVServer.api.request {
-    internal sealed class TestRequest : Request {
+    internal sealed class HeadRequest : Request {
 
-        private readonly String mFileName;
+        private String mFileName;
 
-        public TestRequest(HttpListenerRequest httpListenerRequest)
+        public HeadRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
-            requestType = RequestType.GET;
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
+            requestType = RequestType.HEAD;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
             mFileName = url.Remove(0, host.Length);
-            Console.WriteLine("Parsed TEST " + httpListenerRequest.HttpMethod + " REQUEST " + ToString());
+            Console.WriteLine("Parsed HEAD REQUEST " + ToString());
+        }
+
+        internal String getFileName() {
+            return mFileName;
+        }
+
+        internal void setFileName(String fileName) {
+            mFileName = fileName;
         }
 
         public override string ToString() {
@@ -35,10 +44,13 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task<Response> getResponse() {
-            var response = new Response(200);
-            response.setContentLength(0);
-            response.setData(null);
-            var task = new Task<Response>(() => response);
+            var task = new Task<Response>(() => {
+                if (FileManager.getInstanse().getDirInfo(mFileName).Exists
+                    || FileManager.getInstanse().getFileInfo(mFileName).Exists) {
+                    return new Response(204);   
+                }
+                return new Response(404);
+            });
             task.Start();
             return task;
         }

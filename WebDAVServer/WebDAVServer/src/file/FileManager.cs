@@ -28,6 +28,11 @@ namespace WebDAVServer.file {
             return File.Open(path, FileMode.Open);
         }
 
+        internal FileStream getFileForRead(String url) {
+            var path = mRoot + url;
+            return File.OpenRead(path);
+        }
+
         internal FileInfo getFileInfo(String url) {
             var path = mRoot + url;
             return new FileInfo(path);
@@ -61,7 +66,6 @@ namespace WebDAVServer.file {
         internal void deleteFileOrDir(String url) {
             var path = mRoot + url;
             var file = new FileInfo(path);
-            //var dir = new DirectoryInfo(path);
             if (file.Exists) {
                 File.Delete(path);
             } else {

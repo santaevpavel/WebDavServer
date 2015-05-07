@@ -5,7 +5,7 @@ using WebDAVServer.api.request;
 namespace WebDAVServer.file {
     internal sealed class LockManager {
         private static LockManager instance;
-        private readonly Dictionary<String, LockInfo> locks = new Dictionary<String, LockInfo>();
+        private volatile Dictionary<String, LockInfo> locks = new Dictionary<String, LockInfo>();
 
         private LockManager() {    
         }
@@ -38,12 +38,11 @@ namespace WebDAVServer.file {
         internal LockType lockType;
         internal LockScope lockScope;
         internal int depth = -1;
-        internal String owner;
-        internal String lockToken;
+        internal String owner = "";
+        internal String lockToken = "";
 
-        internal LockInfo() {
-            
-        }
+        internal LockInfo() {}
+
         internal LockInfo(String path, LockType lockType, LockScope lockScope,
             int depth, String owner, String lockToken) {
             this.path = path;

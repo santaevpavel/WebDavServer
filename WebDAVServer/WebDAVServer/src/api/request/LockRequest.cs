@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,12 +13,12 @@ using WebDAVServer.file;
 namespace WebDAVServer.api.request {
 
     internal enum LockType {
-        WRITE,
+        WRITE
     }
 
     internal enum LockScope {
         EXCLUSIVE,
-        SHARED,
+        SHARED
     }
 
     internal sealed class LockRequest : Request {
@@ -79,13 +80,13 @@ namespace WebDAVServer.api.request {
             mLockType = lockType;
         }
 
-        private async void doCommand() {
+        private void doCommand() {
             code = 200;
             var buffer = new byte[1024 * 1024];
             var offset = 0;
             try {
                 int count;
-                while (0 < (count = await inputStream.ReadAsync(buffer, offset, buffer.Length - offset))) {
+                while (0 < (count = inputStream.Read(buffer, offset, buffer.Length - offset))) {
                     offset += count;
                 }
             } catch (HttpListenerException e) {
@@ -94,15 +95,23 @@ namespace WebDAVServer.api.request {
             content = Encoding.UTF8.GetString(buffer, 0, offset);
             LOGGER.Trace(content);
             inputStream.Close();
+            if (!content.Any()) {
+                return;
+            }
             LockHelper.parseLockContent(content, this);
-            LockManager.getInstanse().lockFile(mFileName, new LockInfo(mFileName, mLockType, mLockScope, mDepth, mOwner, mFileName));
+            LockManager.getInstanse()
+                .lockFile(mFileName, new LockInfo(mFileName, mLockType, mLockScope, mDepth, mOwner, mFileName));
         }
 
         internal override Task<Response> getResponse() {
             var task = new Task<Response>(() => {
                 var response = new Response(code);
                 var lockInfo = LockManager.getInstanse().getLockInfo(mFileName);
+                if (null == lockInfo) {
+                    return response;
+                }
                 var xmlContent = PropFindHelper.getLockDiscovery(lockInfo);
+                LOGGER.Trace("RESPONSE " + xmlContent);
                 Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(xmlContent));
                 response.setContentLength(stream.Length);
                 response.setData(stream);

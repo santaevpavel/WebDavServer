@@ -15,6 +15,9 @@ namespace WebDAVServer.api.helpers {
             if (null == lockRequest) {
                 throw new ArgumentNullException("lockRequest");
             }
+            if (!content.Any()) {
+                return;
+            }
             var document = XDocument.Parse(content);
             if (document.Root == null) {
                 return;
@@ -99,10 +102,7 @@ namespace WebDAVServer.api.helpers {
             }
             var elems = element.Elements().Where(xElement => xElement.Name.Equals(name));
             var xElements = elems as XElement[] ?? elems.ToArray();
-            if (xElements.Any()) {
-                return xElements.ElementAt(0);
-            }
-            return null;
+            return xElements.Any() ? xElements.ElementAt(0) : null;
         }
     }
 }

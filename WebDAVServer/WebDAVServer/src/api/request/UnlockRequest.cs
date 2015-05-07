@@ -10,7 +10,7 @@ namespace WebDAVServer.api.request {
 
         private String mFileName;
         private int code;
-        private String token;
+        private readonly String token;
 
         public UnlockRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
@@ -57,7 +57,7 @@ namespace WebDAVServer.api.request {
 
         internal override Task<Response> getResponse() {
             var task = new Task<Response>(() => {
-                var response = new Response(204);
+                var response = new Response(code);
                 return response;
             });
             task.Start();

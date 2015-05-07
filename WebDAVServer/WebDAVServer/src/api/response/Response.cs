@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using NLog;
+using WebDAVServer.api.helpers;
 
 namespace WebDAVServer.api.response {
     internal class Response {
@@ -10,6 +12,7 @@ namespace WebDAVServer.api.response {
         private Stream mData;
         private long contentLength;
         private readonly Dictionary<String, String> headers;
+        private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
 
         internal Response(int code) {
             mCode = code;
@@ -37,21 +40,40 @@ namespace WebDAVServer.api.response {
             var keys = headers.Keys;
             foreach (var key in keys) {
                 var val = headers[key];
-                response.AppendHeader(key, val);
+                if (key.Equals("allow")) {
+                    response.AddHeader(key, "OPTIONS,GET,HEAD,POST,DELETE,PROPFIND,PROPPATCH,COPY,MOVE,LOCK,UNLOCK");
+                } else {
+                    response.AppendHeader(key, val);
+                }
             }
             if (null == mData) {
                 response.OutputStream.Close();
                 return;
             }
             var buffer = new byte[1024];
+            var progress = new ProgressView(Console.BufferWidth);
+            long sum = 0;
             using (var output = response.OutputStream) {
-                while (true) {
-                    var i = await mData.ReadAsync(buffer, 0, buffer.Length);
-                    if (i > 0) {
-                        await output.WriteAsync(buffer, 0, i);
-                    } else {
-                        break;
+                try {
+                    while (true) {
+                        var i = await mData.ReadAsync(buffer, 0, buffer.Length);
+                        if (i > 0) {
+                            sum += i;
+                            await output.WriteAsync(buffer, 0, i);
+                            if (contentLength > 10 * 1024 * 1024) {
+                                progress.drawProgress((double)sum / contentLength);
+                            }
+                        } else {
+                            Console.WriteLine();
+                            break;
+                        }
+                        if (sum == contentLength) {
+                            break;
+                        }
                     }
+                } catch (HttpListenerException e) {
+                    // error
+                    LOGGER.Error(e.Message);
                 }
                 mData.Close();
             }

@@ -30,13 +30,6 @@ namespace WebDAVServer.api.request {
             var depth = httpListenerRequest.Headers.Get(DEPTH_NAME);
             mDepth = Int32.Parse(depth);
             Console.WriteLine("Parsed PROPFIND REQUEST " + ToString());
-            var keys = httpListenerRequest.Headers.AllKeys;
-            foreach (var key in keys) {
-                var strings = httpListenerRequest.Headers.GetValues(key);
-                if (strings != null) {
-                    Console.WriteLine(key + "->" + strings[0]);
-                }
-            }
         }
 
         internal String getPath() {
@@ -60,7 +53,7 @@ namespace WebDAVServer.api.request {
             task.Start();
             return task;
         }
-        private void doCommand() {
+        private static void doCommand() {
 
         }
 

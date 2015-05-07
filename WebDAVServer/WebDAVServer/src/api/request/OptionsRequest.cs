@@ -39,7 +39,7 @@ namespace WebDAVServer.api.request {
             task.Start();
             return task;
         }
-        private void doCommand() {
+        private static void doCommand() {
 
         }
 

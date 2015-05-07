@@ -21,15 +21,16 @@ namespace WebDAVServer.core {
                 Console.WriteLine("Getted unknown request " + request.HttpMethod);
                 return new TestRequest(request);
             }
-            if (null != requestTypes[0]) {
-                var type = requestTypes[0].getType();
-                var constructorInfo = type.GetConstructors()[0];
-                if (constructorInfo != null) {
-                    var req = (Request)constructorInfo.Invoke(new object[] { request });
-                    return req;
-                }
+            if (null == requestTypes[0]) {
+                return null;
             }
-            return null;
+            var reqType = requestTypes[0].getType();
+            var constructorInfo = reqType.GetConstructors()[0];
+            if (constructorInfo == null) {
+                return null;
+            }
+            var req = (Request)constructorInfo.Invoke(new object[] { request });
+            return req;
         }
     }
 }

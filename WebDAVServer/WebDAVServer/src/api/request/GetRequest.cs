@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using WebDAVServer.api.request.@base;
@@ -39,18 +40,25 @@ namespace WebDAVServer.api.request {
             task.Start();
             return task;
         }
-        private void doCommand() {
+        private static void doCommand() {
 
         }
 
         internal override Task<Response> getResponse() {
             var task = new Task<Response>(() => {
                 var response = new Response(200);
-                var file = FileManager.getInstanse().getFile(mFileName);
-                if (null != file) {
-                    response.setContentLength(file.Length);
-                    response.setData(file);
+                FileStream file;
+                try {
+                    file = FileManager.getInstanse().getFileForRead(mFileName);
+                } catch (FileNotFoundException) {
+                    response = new Response(404);
+                    return response;
                 }
+                if (null == file) {
+                    return response;
+                }
+                response.setContentLength(file.Length);
+                response.setData(file);
                 return response;
             });
             task.Start();

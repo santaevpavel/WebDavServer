@@ -44,11 +44,13 @@ namespace WebDAVServer.api.request {
         private void doCommand() {
             try {
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
-                code = 200;
+                code = 204;
             } catch (FileNotFoundException) {
                 code = 404;
             } catch (DirectoryNotFoundException) {
                 code = 404;
+            } catch (UnauthorizedAccessException) {
+                code = 423;
             }
         }
 

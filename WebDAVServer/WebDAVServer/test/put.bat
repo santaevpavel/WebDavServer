@@ -1,1 +1,0 @@
-curl -X PUT http://localhost:27999/c.txt -T "c.txt"

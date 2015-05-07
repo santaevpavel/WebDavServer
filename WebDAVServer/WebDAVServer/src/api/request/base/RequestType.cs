@@ -13,6 +13,7 @@ namespace WebDAVServer.api.request.@base {
         internal static readonly RequestType PROPPATCH = new RequestType(Type.GetType("WebDAVServer.api.request.PropPatchRequest", true), "PROPPATCH");
         internal static readonly RequestType OPTIONS = new RequestType(Type.GetType("WebDAVServer.api.request.OptionsRequest", true), "OPTIONS");
         internal static readonly RequestType DELETE = new RequestType(Type.GetType("WebDAVServer.api.request.DeleteRequest", true), "DELETE");
+        internal static readonly RequestType HEAD = new RequestType(Type.GetType("WebDAVServer.api.request.HeadRequest", true), "HEAD");
 
         private readonly Type classType;
         private readonly String mHttpMethod;
@@ -31,7 +32,7 @@ namespace WebDAVServer.api.request.@base {
         }
 
         internal static RequestType[] values() {
-            return new[]{GET, PROPFIND, PUT, MKCOL, OPTIONS, COPY, LOCK, DELETE, MOVE, PROPPATCH, UNLOCK};
+            return new[]{GET, PROPFIND, PUT, MKCOL, OPTIONS, COPY, LOCK, DELETE, MOVE, PROPPATCH, UNLOCK, HEAD};
         }
     }
 }

@@ -14,19 +14,21 @@ namespace WebDAVServer.api.request {
         private String mFileName;
         private readonly Stream fileStream;
         private int code;
-        private HttpListenerRequest mRequest;
+        private readonly long size;
+
         public PutRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            mRequest = httpListenerRequest;
             requestType = RequestType.PUT;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
             mFileName = url.Remove(0, host.Length);
             fileStream = httpListenerRequest.InputStream;
+            size = httpListenerRequest.ContentLength64;
             Console.WriteLine("Parsed PUT REQUEST " + ToString());
+            Console.WriteLine("SIZE = " + httpListenerRequest.ContentLength64);
         }
 
         internal String getFileName() {
@@ -48,24 +50,27 @@ namespace WebDAVServer.api.request {
         }
         private void doCommand() {
             if (FileManager.getInstanse().getFileInfo(mFileName).Exists) {
-                //code = 207;
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
-                //return;
             }
             if (FileManager.getInstanse().getDirInfo(mFileName).Exists) {
-                //code = 207;
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
-                //return;
             }
             code = 201;
+            var progress = new ProgressView(Console.BufferWidth);
+            long sum = 0;
             using (var file = FileManager.getInstanse().createFile(mFileName)) {
                 var buffer = new byte[1024 * 1024];
                 try {
                     while (true) {
                         var i = fileStream.Read(buffer, 0, buffer.Length);
                         if (i > 0) {
+                            sum += i;
                             file.Write(buffer, 0, i);
+                            if (size > 10 * 1024 * 1024) {
+                                progress.drawProgress((double) sum/size);
+                            }
                         } else {
+                            Console.WriteLine();
                             break;
                         }
                     }
@@ -82,7 +87,7 @@ namespace WebDAVServer.api.request {
                 Response response;
                 switch (code) {
                     case 201: {
-                            response = new Response(200);
+                            response = new Response(code);
                             return response;
                         }
                     case 207: {

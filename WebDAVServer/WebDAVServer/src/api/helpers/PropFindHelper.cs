@@ -70,11 +70,11 @@ namespace WebDAVServer.api.helpers {
         private static XElement getLockDisc(LockInfo lockInfo) {
             var main = new XElement(XML_NAMESPACE + "lockdiscovery");
             if (null == lockInfo) {
-                return main;
+                return null;
             }
             var active = new XElement(XML_NAMESPACE + "activelock");
             main.Add(active);
-            active.Add(new XElement(XML_NAMESPACE + "locktype"), new XElement(XML_NAMESPACE + "write"));
+            active.Add(new XElement(XML_NAMESPACE + "locktype", new XElement(XML_NAMESPACE + "write")));
             String scope;
             switch (lockInfo.lockScope) {
                 case LockScope.EXCLUSIVE:
@@ -87,7 +87,7 @@ namespace WebDAVServer.api.helpers {
                     scope = "exclusive";
                     break;
             }
-            active.Add(new XElement(XML_NAMESPACE + "lockscope"), new XElement(XML_NAMESPACE + scope));
+            active.Add(new XElement(XML_NAMESPACE + "lockscope", new XElement(XML_NAMESPACE + scope)));
             var depth = new XElement(XML_NAMESPACE + "depth") {Value = "" + 0};
 
             active.Add(depth);
@@ -192,7 +192,7 @@ namespace WebDAVServer.api.helpers {
 
             internal FilePropStatBuilder(DirectoryInfo dirInfo, String relName) {
                 if (null == dirInfo) {
-                    throw new ArgumentNullException("fileInfo");
+                    throw new ArgumentNullException("dirInfo");
                 }
                 if (null == relName) {
                     throw new ArgumentNullException("relName");
