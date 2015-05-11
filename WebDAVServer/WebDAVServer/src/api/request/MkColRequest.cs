@@ -36,33 +36,30 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
+            throw new Exception("Call sync doCommand");
         }
 
-        private void doCommand() {
+        internal override void doCommand() {
             var dir = FileManager.getInstanse().getDirInfo(mDirName);
             if (dir.Exists) {
-                code = 201;
+                code = HttpStatusCodes.SUCCESS_CREATED;
                 return;
             }
             try {
                 dir.Create();
             } catch (Exception) {
-                code = 405;
+                code = HttpStatusCodes.CLIENT_ERROR_METHOD_NOT_ALLOWED;
                 return;
             }
-            code = 201;
+            code = HttpStatusCodes.SUCCESS_CREATED;
         }
 
-        internal override Task<Response> getResponse() {
-            var response = new Response(code);
-            var task = new Task<Response>(() => response);
-            task.Start();
-            return task;
+        internal override Response getResponse() {
+            return new Response(code);
         }
 
-
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

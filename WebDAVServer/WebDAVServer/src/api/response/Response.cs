@@ -50,17 +50,17 @@ namespace WebDAVServer.api.response {
                 response.OutputStream.Close();
                 return;
             }
-            var buffer = new byte[1024];
+            var buffer = new byte[ProgramCostants.DEFAUT_BUFFER_SIZE];
             var progress = new ProgressView(Console.BufferWidth);
             long sum = 0;
             using (var output = response.OutputStream) {
                 try {
                     while (true) {
-                        var i = await mData.ReadAsync(buffer, 0, buffer.Length);
-                        if (i > 0) {
-                            sum += i;
-                            await output.WriteAsync(buffer, 0, i);
-                            if (contentLength > 10 * 1024 * 1024) {
+                        var count = await mData.ReadAsync(buffer, 0, buffer.Length);
+                        if (count > 0) {
+                            sum += count;
+                            await output.WriteAsync(buffer, 0, count);
+                            if (contentLength > ProgramCostants.MIN_PROGRESS_VIEWING_SIZE) {
                                 progress.drawProgress((double)sum / contentLength);
                             }
                         } else {

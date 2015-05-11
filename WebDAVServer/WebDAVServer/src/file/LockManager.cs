@@ -15,15 +15,30 @@ namespace WebDAVServer.file {
         }
 
         internal LockInfo getLockInfo(String uri) {
+            if (null == uri) {
+                throw new ArgumentNullException("uri");
+            }
             return locks.ContainsKey(uri) ? locks[uri] : null;
         }
 
         internal void lockFile(String uri, LockInfo lockInfo) {
+            if (null == uri) {
+                throw new ArgumentNullException("uri");
+            }
+            if (null == lockInfo) {
+                throw new ArgumentNullException("lockInfo");
+            }
             locks.Remove(uri);
             locks.Add(uri, lockInfo);
         }
 
         internal bool unlock(String uri, String token) {
+            if (null == uri) {
+                throw new ArgumentNullException("uri");
+            }
+            if (null == token) {
+                throw new ArgumentNullException("token");
+            }
             if (!locks.ContainsKey(uri) || !locks[uri].lockToken.Equals(token)) {
                 return false;
             }

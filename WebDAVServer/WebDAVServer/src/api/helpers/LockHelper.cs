@@ -52,7 +52,6 @@ namespace WebDAVServer.api.helpers {
             if (null == lockType) {
                 return;
             }
-            //var type = lockType.Elements().ElementAt(0).ToString();
             lockRequest.setLockType(LockType.WRITE);
         }
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Net;
 using NLog;
+using WebDAVServer.api.request;
 using WebDAVServer.api.request.@base;
 using WebDAVServer.api.response;
 using WebDAVServer.file;
 
 namespace WebDAVServer.core {
-    internal sealed class Server : IDisposable{
+    internal sealed class Server : IDisposable {
 
         private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
         private readonly int mPort;
@@ -25,16 +26,14 @@ namespace WebDAVServer.core {
                 Console.WriteLine("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
-            lock (mListener) {
-                mListener.Prefixes.Add(String.Format("http://localhost:{0}/", mPort));
-                mListener.Start();
-                Console.WriteLine("Listening on port " + mPort + "...");
-                while (true) {
-                    var context = mListener.GetContext();
-                    readAndReply(context);
-                    if (isFinished) {
-                        break;
-                    }
+            mListener.Prefixes.Add(String.Format("http://localhost:{0}/", mPort));
+            mListener.Start();
+            Console.WriteLine("Listening on port " + mPort + "...");
+            while (true) {
+                var context = mListener.GetContext();
+                readAndReply(context);
+                if (isFinished) {
+                    break;
                 }
             }
         }
@@ -43,24 +42,28 @@ namespace WebDAVServer.core {
             var isFailed = false;
             var request = context.Request;
             logRequest(request);
-            var requestObj = await RequestParser.parseRequestAsync(request);
+            var requestObj = await RequestParser.parseRequestAsync(request) ?? new TestRequest(request);
             if (requestObj.getRequestType().Equals(RequestType.PUT)) {
-                context.Response.StatusCode = 100;
+                context.Response.StatusCode = HttpStatusCodes.INFO_CONTINUE;
                 context.Response.ContentLength64 = 0;
             }
             Response response = null;
             try {
-                await requestObj.doCommandAsync();
-                response = await requestObj.getResponse();
+                if (requestObj.isAsync()) {
+                    await requestObj.doCommandAsync();
+                } else {
+                    requestObj.doCommand();
+                }
+                response = requestObj.getResponse();
             } catch (Exception e) {
                 LOGGER.Error(e.Message);
                 isFailed = true;
             }
-            
+
             if (!isFailed) {
                 response.setResponse(context.Response);
             } else {
-                context.Response.StatusCode = 500;
+                context.Response.StatusCode = HttpStatusCodes.SERVER_ERROR_INTERNAL_ERROR;
                 context.Response.ContentLength64 = 0;
                 context.Response.OutputStream.Close();
             }

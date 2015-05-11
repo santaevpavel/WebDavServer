@@ -26,23 +26,21 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
-        }
-        private static void doCommand() {
-
+            throw new Exception("Call sync doCommand");
         }
 
-        internal override Task<Response> getResponse() {
-            var response = new Response(200);
+        internal override void doCommand() {
+        }
+
+        internal override Response getResponse() {
+            var response = new Response(HttpStatusCodes.SUCCESS_OK);
             response.setContentLength(0);
             response.setData(null);
-            var task = new Task<Response>(() => response);
-            task.Start();
-            return task;
+            return response;
         }
 
-
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

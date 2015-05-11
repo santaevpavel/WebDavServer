@@ -41,29 +41,26 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
+            throw new Exception("Call sync doCommand");
         }
-        private void doCommand() {
-            code = 204;
+
+        internal override void doCommand() {
+            code = HttpStatusCodes.SUCCESS_NO_CONTENT;
             var lockInfo = LockManager.getInstanse().getLockInfo(mFileName);
             if (null != lockInfo || null != token) {
-                code = LockManager.getInstanse().unlock(mFileName, token) ? 204 : 424;
+                code = LockManager.getInstanse().unlock(mFileName, token) ? 
+                    HttpStatusCodes.SUCCESS_NO_CONTENT : HttpStatusCodes.CLIENT_ERROR_FAILED_DEPENDENCY;
             } else {
-                code = 424;
+                code = HttpStatusCodes.CLIENT_ERROR_FAILED_DEPENDENCY;
             }
         }
 
-        internal override Task<Response> getResponse() {
-            var task = new Task<Response>(() => {
-                var response = new Response(code);
-                return response;
-            });
-            task.Start();
-            return task;
+        internal override Response getResponse() {
+            return new Response(code);
         }
 
-
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

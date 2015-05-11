@@ -21,7 +21,11 @@ namespace WebDAVServer.api.request.@base {
 
         internal abstract Task doCommandAsync();
 
-        internal abstract Task<Response> getResponse();
+        internal abstract void doCommand();
+
+        internal abstract Response getResponse();
+
+        internal abstract bool isAsync();
 
     }
 }

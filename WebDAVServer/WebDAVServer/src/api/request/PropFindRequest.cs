@@ -49,35 +49,33 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
-        }
-        private static void doCommand() {
-
+            throw new Exception("Call sync doCommand");
         }
 
-        internal override Task<Response> getResponse() {
-            var task = new Task<Response>(() => {
-                Response response;
-                String str;
-                try {
-                    str = FileManager.getInstanse().getDirInfo(mPath).Exists ?
-                        PropFindHelper.getFilesPropInDir(mPath, mDepth) : PropFindHelper.getFilesProp(mPath);
-                    response = new Response(207);
-                    LOGGER.Trace(str);
-                } catch (DirectoryNotFoundException) {
-                    str = "";
-                    response = new Response(404);
-                }
-                Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
-                response.setContentLength(stream.Length);
-                response.setData(stream);
-                response.addHeaderValue("Content-Type", "application/xml; charset=\"utf-8\"");
-                return response;
-            });
-            task.Start();
-            return task;
+        internal override void doCommand() {
+        }
+
+        internal override Response getResponse() {
+            Response response;
+            String str;
+            try {
+                str = FileManager.getInstanse().getDirInfo(mPath).Exists ?
+                    PropFindHelper.getFilesPropInDir(mPath, mDepth) : PropFindHelper.getFilesProp(mPath);
+                response = new Response(HttpStatusCodes.SUCCESS_MULTISTATUS);
+                LOGGER.Trace(str);
+            } catch (DirectoryNotFoundException) {
+                str = "";
+                response = new Response(HttpStatusCodes.CLIENT_ERROR_NOT_FOUND);
+            }
+            Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
+            response.setContentLength(stream.Length);
+            response.setData(stream);
+            response.addHeaderValue("Content-Type", "application/xml; charset=\"utf-8\"");
+            return response;
+        }
+
+        internal override bool isAsync() {
+            return false;
         }
 
         public override string ToString() {

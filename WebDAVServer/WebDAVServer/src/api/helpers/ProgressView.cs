@@ -3,11 +3,12 @@
 namespace WebDAVServer.api.helpers {
     class ProgressView {
 
+        private const int DEFAULT_SIZE = 20;
         private readonly int mSize;
         private bool isDrawedProgress;
         private int count;
 
-        public ProgressView(int size = 20) {
+        public ProgressView(int size = DEFAULT_SIZE) {
             mSize = size;
         }
 

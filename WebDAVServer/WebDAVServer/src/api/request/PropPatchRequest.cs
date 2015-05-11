@@ -38,17 +38,12 @@ namespace WebDAVServer.api.request {
             mPath = path;
         }
 
-        internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
-        }
-        private void doCommand() {
-            var buffer = new byte[1024 * 1024];
+        internal override async Task doCommandAsync() {
+            var buffer = new byte[ProgramCostants.DEFAUT_BUFFER_SIZE];
             var offset = 0;
             try {
                 int count;
-                while (0 < (count = inStream.Read(buffer, offset, buffer.Length - offset))) {
+                while (0 < (count = await inStream.ReadAsync(buffer, offset, buffer.Length - offset))) {
                     offset += count;
                 }
             } catch (HttpListenerException e) {
@@ -59,19 +54,23 @@ namespace WebDAVServer.api.request {
             responseText = PropPatchHelper.parsePropPatchContent(mPath, content);
         }
 
-        internal override Task<Response> getResponse() {
-            var task = new Task<Response>(() => {
-                var response = new Response(207);
-                if (null == responseText) {
-                    return new Response(200);
-                }
-                Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseText));
-                response.setContentLength(stream.Length);
-                response.setData(stream);
-                return response;
-            });
-            task.Start();
-            return task;
+        internal override void doCommand() {
+            throw new Exception("Call async doCommandAsync");
+        }
+
+        internal override Response getResponse() {
+            var response = new Response(HttpStatusCodes.SUCCESS_MULTISTATUS);
+            if (null == responseText) {
+                return new Response(HttpStatusCodes.SUCCESS_OK);
+            }
+            Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseText));
+            response.setContentLength(stream.Length);
+            response.setData(stream);
+            return response;
+        }
+
+        internal override bool isAsync() {
+            return true;
         }
 
         public override string ToString() {

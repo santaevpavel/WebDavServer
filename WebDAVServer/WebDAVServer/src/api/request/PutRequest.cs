@@ -43,31 +43,26 @@ namespace WebDAVServer.api.request {
             return string.Format("mFileName: {0}", mFileName);
         }
 
-        internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
-        }
-        private void doCommand() {
+        internal override async Task doCommandAsync() {
             if (FileManager.getInstanse().getFileInfo(mFileName).Exists) {
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
             }
             if (FileManager.getInstanse().getDirInfo(mFileName).Exists) {
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
             }
-            code = 201;
+            code = HttpStatusCodes.SUCCESS_CREATED;
             var progress = new ProgressView(Console.BufferWidth);
             long sum = 0;
             using (var file = FileManager.getInstanse().createFile(mFileName)) {
-                var buffer = new byte[1024 * 1024];
+                var buffer = new byte[ProgramCostants.DEFAUT_BUFFER_SIZE];
                 try {
                     while (true) {
-                        var i = fileStream.Read(buffer, 0, buffer.Length);
-                        if (i > 0) {
-                            sum += i;
-                            file.Write(buffer, 0, i);
-                            if (size > 10 * 1024 * 1024) {
-                                progress.drawProgress((double) sum/size);
+                        var count = await fileStream.ReadAsync(buffer, 0, buffer.Length);
+                        if (count > 0) {
+                            sum += count;
+                            await file.WriteAsync(buffer, 0, count);
+                            if (size > ProgramCostants.MIN_PROGRESS_VIEWING_SIZE) {
+                                progress.drawProgress((double)sum / size);
                             }
                         } else {
                             Console.WriteLine();
@@ -78,28 +73,31 @@ namespace WebDAVServer.api.request {
                     Console.WriteLine(e.Message);
                 }
                 fileStream.Close();
-                code = 201;
+                code = HttpStatusCodes.SUCCESS_CREATED;
             }
         }
 
-        internal override Task<Response> getResponse() {
-            var task = new Task<Response>(() => {
+        internal override void doCommand() {
+            throw new Exception("Call async doCommandAsync");
+        }
+
+        internal override Response getResponse() {
                 Response response;
                 switch (code) {
-                    case 201: {
+                    case HttpStatusCodes.SUCCESS_CREATED: {
                             response = new Response(code);
                             return response;
                         }
-                    case 207: {
+                    case HttpStatusCodes.SUCCESS_MULTISTATUS: {
                             String str;
                             try {
                                 str = FileManager.getInstanse().getDirInfo(mFileName).Exists
                                     ? PropFindHelper.getFilesPropInDir(mFileName, 0)
                                     : PropFindHelper.getFilesProp(mFileName);
-                                response = new Response(207);
+                                response = new Response(HttpStatusCodes.SUCCESS_MULTISTATUS);
                             } catch (DirectoryNotFoundException) {
                                 str = "";
-                                response = new Response(404);
+                                response = new Response(HttpStatusCodes.CLIENT_ERROR_NOT_FOUND);
                             }
                             Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
                             response.setContentLength(stream.Length);
@@ -110,9 +108,10 @@ namespace WebDAVServer.api.request {
                     default:
                         throw new Exception("Bad code " + code);
                 }
-            });
-            task.Start();
-            return task;
+        }
+
+        internal override bool isAsync() {
+            return true;
         }
     }
 }

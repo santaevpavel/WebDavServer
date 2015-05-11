@@ -37,30 +37,28 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
+            throw new Exception("Call sync doCommand");
         }
-        private void doCommand() {
+
+        internal override void doCommand() {
             try {
                 FileManager.getInstanse().deleteFileOrDir(mFileName);
-                code = 204;
+                code = HttpStatusCodes.SUCCESS_NO_CONTENT;
             } catch (FileNotFoundException) {
-                code = 404;
+                code = HttpStatusCodes.CLIENT_ERROR_NOT_FOUND;
             } catch (DirectoryNotFoundException) {
-                code = 404;
+                code = HttpStatusCodes.CLIENT_ERROR_NOT_FOUND;
             } catch (UnauthorizedAccessException) {
-                code = 423;
+                code = HttpStatusCodes.CLIENT_ERROR_LOCKED;
             }
         }
 
-        internal override Task<Response> getResponse() {
-            var response = new Response(code);
-            var task = new Task<Response>(() => response);
-            task.Start();
-            return task;
+        internal override Response getResponse() {
+            return new Response(code);
         }
 
-
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

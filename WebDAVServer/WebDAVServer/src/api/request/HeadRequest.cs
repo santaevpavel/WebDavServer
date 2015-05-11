@@ -35,26 +35,23 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
-        }
-        private static void doCommand() {
-
+            throw new Exception("Call sync doCommand");
         }
 
-        internal override Task<Response> getResponse() {
-            var task = new Task<Response>(() => {
-                if (FileManager.getInstanse().getDirInfo(mFileName).Exists
-                    || FileManager.getInstanse().getFileInfo(mFileName).Exists) {
-                    return new Response(204);   
-                }
-                return new Response(404);
-            });
-            task.Start();
-            return task;
+        internal override void doCommand() {
         }
 
 
+        internal override Response getResponse() {
+            if (FileManager.getInstanse().getDirInfo(mFileName).Exists
+                || FileManager.getInstanse().getFileInfo(mFileName).Exists) {
+                return new Response(HttpStatusCodes.SUCCESS_NO_CONTENT);
+            }
+            return new Response(HttpStatusCodes.CLIENT_ERROR_NOT_FOUND);
+        }
+
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

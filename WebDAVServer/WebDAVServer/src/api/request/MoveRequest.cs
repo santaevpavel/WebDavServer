@@ -45,34 +45,31 @@ namespace WebDAVServer.api.request {
         }
 
         public override string ToString() {
-            return string.Format("mFileName: {0}, mDstFileName: {0}", mDstFileName);
+            return string.Format("mFileName: {0}, mDstFileName: {1}", mFileName, mDstFileName);
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
+            throw new Exception("Call sync doCommand");
         }
-        private void doCommand() {
+        internal override void doCommand() {
             if (mDstFileName.Equals(mFileName)) {
-                code = 403;
+                code = HttpStatusCodes.CLIENT_ERROR_FORBIDDEN;
                 return;
             }
             try {
                 var res = FileManager.getInstanse().moveFile(mFileName, mDstFileName, overwrite);
-                code = res ? 201 : 204;
+                code = res ? HttpStatusCodes.SUCCESS_CREATED : HttpStatusCodes.SUCCESS_NO_CONTENT;
             } catch (Exception) {
-                code = 412;
+                code = HttpStatusCodes.CLIENT_ERROR_PRECONDITION_FAILED;
             }
         }
 
-        internal override Task<Response> getResponse() {
-            var response = new Response(code);
-            var task = new Task<Response>(() => response);
-            task.Start();
-            return task;
+        internal override Response getResponse() {
+            return new Response(code);
         }
 
-
+        internal override bool isAsync() {
+            return false;
+        }
     }
 }

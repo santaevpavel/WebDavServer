@@ -35,22 +35,21 @@ namespace WebDAVServer.api.request {
         }
 
         internal override Task doCommandAsync() {
-            var task = new Task(doCommand);
-            task.Start();
-            return task;
+            throw new Exception("Call sync doCommand");
         }
-        private static void doCommand() {
-
+        internal override void doCommand() {
         }
 
-        internal override Task<Response> getResponse() {
-            var response = new Response(200);
+        internal override Response getResponse() {
+            var response = new Response(HttpStatusCodes.SUCCESS_OK);
             response.addHeaderValue("allow", "OPTIONS,GET,HEAD,POST,DELETE,PROPFIND,PROPPATCH,COPY,MOVE,LOCK,UNLOCK");
             response.addHeaderValue("DAV", "1,2");
             response.setContentLength(0);
-            var task = new Task<Response>(() => response);
-            task.Start();
-            return task;
+            return response;
+        }
+
+        internal override bool isAsync() {
+            return false;
         }
 
         public override string ToString() {
