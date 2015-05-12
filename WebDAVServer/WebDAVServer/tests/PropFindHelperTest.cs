@@ -9,12 +9,12 @@ namespace WebDAVServer.tests {
     public class PropFindHelperTest {
 
         [TestMethod]
-        public void getProp() {
-            FileManager.init("");
+        public void GetProp() {
+            FileManager.Init("");
             const string fileName = "test.txt";
             var file = File.Create(fileName);
             file.Close();
-            var curRes = PropFindHelper.getFilesProp(fileName);
+            var curRes = PropFindHelper.GetFilesProp(fileName);
             //<d:status>HTTP/1.1 200 OK</d:status>
             var pos = curRes.IndexOf("<d:status>HTTP/1.1 200 OK</d:status>", StringComparison.Ordinal);
             Assert.AreEqual(true, pos > 0);

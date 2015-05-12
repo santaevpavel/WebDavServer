@@ -6,9 +6,9 @@ using WebDAVServer.api.request;
 namespace WebDAVServer.api.helpers {
     internal static class LockHelper {
 
-        private static readonly XNamespace XML_NAMESPACE = "DAV:";
+        private static readonly XNamespace XmlNamespace = "DAV:";
 
-        internal static void parseLockContent(String content, LockRequest lockRequest) {
+        internal static void ParseLockContent(String content, LockRequest lockRequest) {
             if (null == content) {
                 throw new ArgumentNullException("content");
             }
@@ -22,11 +22,11 @@ namespace WebDAVServer.api.helpers {
             if (document.Root == null) {
                 return;
             }
-            parseLockType(lockRequest, document.Root);
-            parseLockScope(lockRequest, document.Root);
-            parseOwner(lockRequest, document.Root);
+            ParseLockType(lockRequest, document.Root);
+            ParseLockScope(lockRequest, document.Root);
+            ParseOwner(lockRequest, document.Root);
         }
-        internal static void getLockProp(String content, LockRequest lockRequest) {
+        internal static void GetLockProp(String content, LockRequest lockRequest) {
             if (null == content) {
                 throw new ArgumentNullException("content");
             }
@@ -37,65 +37,65 @@ namespace WebDAVServer.api.helpers {
             if (document.Root == null) {
                 return;
             }
-            parseLockType(lockRequest, document.Root);
-            parseLockScope(lockRequest, document.Root);
-            parseOwner(lockRequest, document.Root);
+            ParseLockType(lockRequest, document.Root);
+            ParseLockScope(lockRequest, document.Root);
+            ParseOwner(lockRequest, document.Root);
         }
-        private static void parseLockType(LockRequest lockRequest, XContainer element) {
+        private static void ParseLockType(LockRequest lockRequest, XContainer element) {
             if (null == lockRequest) {
                 throw new ArgumentNullException("lockRequest");
             }
             if (element == null) {
                 throw new ArgumentNullException("element");
             }
-            var lockType = getElement(element, XML_NAMESPACE + "locktype");
+            var lockType = GetElement(element, XmlNamespace + "locktype");
             if (null == lockType) {
                 return;
             }
-            lockRequest.setLockType(LockType.WRITE);
+            lockRequest.SetLockType(LockType.Write);
         }
 
-        private static void parseLockScope(LockRequest lockRequest, XContainer element) {
+        private static void ParseLockScope(LockRequest lockRequest, XContainer element) {
             if (element == null) {
                 throw new ArgumentNullException("element");
             }
             if (null == lockRequest) {
                 throw new ArgumentNullException("lockRequest");
             }
-            var lockScope = getElement(element, XML_NAMESPACE + "lockscope");
+            var lockScope = GetElement(element, XmlNamespace + "lockscope");
             if (null == lockScope) {
                 return;
             }
             var type = lockScope.Elements().ElementAt(0).ToString();
             switch (type) {
                 case "exclusive":
-                    lockRequest.setLockScope(LockScope.EXCLUSIVE);
+                    lockRequest.SetLockScope(LockScope.Exclusive);
                     break;
                 case "shared":
-                    lockRequest.setLockScope(LockScope.SHARED);
+                    lockRequest.SetLockScope(LockScope.Shared);
                     break;
                 default:
-                    lockRequest.setLockScope(LockScope.EXCLUSIVE);
+                    lockRequest.SetLockScope(LockScope.Exclusive);
                     break;
             }
         }
 
-        private static void parseOwner(LockRequest lockRequest, XContainer element) {
+        private static void ParseOwner(LockRequest lockRequest, XContainer element) {
             if (element == null) {
                 throw new ArgumentNullException("element");
             }
             if (null == lockRequest) {
                 throw new ArgumentNullException("lockRequest");
             }
-            var owner = getElement(element, XML_NAMESPACE + "owner");
+            var owner = GetElement(element, XmlNamespace + "owner");
             if (null == owner) {
                 return;
             }
-            var value = getElement(owner, XML_NAMESPACE + "href");
-            lockRequest.setOwner(value.Value);
+            var value = GetElement(owner, XmlNamespace + "href");
+            lockRequest.SetOwner(value.Value);
         }
 
-        private static XElement getElement(XContainer element, XName name) {
+        private static XElement GetElement(XContainer element, XName name) {
             if (element == null) {
                 throw new ArgumentNullException("element");
             }

@@ -7,23 +7,23 @@ namespace WebDAVServer.tests {
     public class FileManagerTest {
 
         [TestMethod]
-        public void getFile() {
-            FileManager.init("");
+        public void GetFile() {
+            FileManager.Init("");
             const string fileName = "test.txt";
             var file = File.Create(fileName);
             file.Close();
-            var info = FileManager.getInstanse().getFileInfo(fileName);
+            var info = FileManager.GetInstanse().GetFileInfo(fileName);
             Assert.AreEqual(info.Exists, true);
             Assert.AreEqual(info.Name, fileName);
             Assert.AreEqual(info.Length, 0);
         }
 
         [TestMethod]
-        public void getDir() {
-            FileManager.init("");
+        public void GetDir() {
+            FileManager.Init("");
             const string fileName = "test";
             Directory.CreateDirectory(fileName);
-            var info = FileManager.getInstanse().getDirInfo(fileName);
+            var info = FileManager.GetInstanse().GetDirInfo(fileName);
             Assert.AreEqual(info.Exists, true);
             Assert.AreEqual(info.Name, fileName);
         }

@@ -9,12 +9,12 @@ namespace WebDAVServer.tests {
     public class LockDiscoveryTest {
 
         [TestMethod]
-        public void lockRequest() {
+        public void LockRequest() {
             const string uri = "a.txt";
             const string token = "aaaa";
             const string user = "me";
-            var info = new LockInfo(uri, LockType.WRITE, LockScope.EXCLUSIVE, 0, user, token);
-            var res = PropFindHelper.getLockDiscovery(info);
+            var info = new LockInfo(uri, LockType.Write, LockScope.Exclusive, 0, user, token);
+            var res = PropFindHelper.GetLockDiscovery(info);
             var pos = res.IndexOf("<d:href>" + token +"</d:href>", StringComparison.Ordinal);
             Assert.IsTrue(pos > 0);
             pos = res.IndexOf("<d:depth>" + 0 + "</d:depth>", StringComparison.Ordinal);

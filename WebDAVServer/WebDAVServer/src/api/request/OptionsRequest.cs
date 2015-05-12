@@ -7,15 +7,15 @@ using WebDAVServer.api.response;
 namespace WebDAVServer.api.request {
     internal sealed class OptionsRequest : Request {
 
-        private String mPath;
+        private String _mPath;
 
         public OptionsRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            requestType = RequestType.PROPFIND;
-            mPath = httpListenerRequest.Url.ToString();
+            RequestType = RequestType.Propfind;
+            _mPath = httpListenerRequest.Url.ToString();
             Console.WriteLine("Parsed OPTION REQUEST " + ToString());
             var keys = httpListenerRequest.Headers.AllKeys;
             foreach (var key in keys) {
@@ -26,34 +26,34 @@ namespace WebDAVServer.api.request {
             }
         }
 
-        internal String getPath() {
-            return mPath;
+        internal String GetPath() {
+            return _mPath;
         }
 
-        internal void setPath(String path) {
-            mPath = path;
+        internal void SetPath(String path) {
+            _mPath = path;
         }
 
-        internal override Task doCommandAsync() {
+        internal override Task DoCommandAsync() {
             throw new Exception("Call sync doCommand");
         }
-        internal override void doCommand() {
+        internal override void DoCommand() {
         }
 
-        internal override Response getResponse() {
-            var response = new Response(HttpStatusCodes.SUCCESS_OK);
-            response.addHeaderValue("allow", "OPTIONS,GET,HEAD,POST,DELETE,PROPFIND,PROPPATCH,COPY,MOVE,LOCK,UNLOCK");
-            response.addHeaderValue("DAV", "1,2");
-            response.setContentLength(0);
+        internal override Response GetResponse() {
+            var response = new Response(HttpStatusCodes.SuccessOk);
+            response.AddHeaderValue("allow", "OPTIONS,GET,HEAD,POST,DELETE,PROPFIND,PROPPATCH,COPY,MOVE,LOCK,UNLOCK");
+            response.AddHeaderValue("DAV", "1,2");
+            response.SetContentLength(0);
             return response;
         }
 
-        internal override bool isAsync() {
+        internal override bool IsAsync() {
             return false;
         }
 
         public override string ToString() {
-            return string.Format("mPath: {0}", mPath);
+            return string.Format("mPath: {0}", _mPath);
         }
     }
 }

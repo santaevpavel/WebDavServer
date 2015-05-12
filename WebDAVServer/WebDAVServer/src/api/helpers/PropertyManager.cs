@@ -6,49 +6,49 @@ using System.Xml.Linq;
 namespace WebDAVServer.api.helpers {
     internal sealed class PropertyManager {
     
-    private static PropertyManager instance;
-    private readonly Dictionary<String, List<PropInfo>> props = new Dictionary<String, List<PropInfo>>();
+    private static PropertyManager _instance;
+    private readonly Dictionary<String, List<PropInfo>> _props = new Dictionary<String, List<PropInfo>>();
 
         private PropertyManager() {    
         }
 
-        internal static PropertyManager getInstanse() {
-            return instance ?? (instance = new PropertyManager());
+        internal static PropertyManager GetInstanse() {
+            return _instance ?? (_instance = new PropertyManager());
         }
 
-        internal List<PropInfo> getLockInfo(String uri) {
-            return props.ContainsKey(uri) ? props[uri] : null;
+        internal List<PropInfo> GetLockInfo(String uri) {
+            return _props.ContainsKey(uri) ? _props[uri] : null;
         }
 
-        internal bool addProps(String uri, List<PropInfo> propInfos) {
+        internal bool AddProps(String uri, List<PropInfo> propInfos) {
             if (null == uri) {
                 throw new ArgumentNullException("uri");
             }
             if (null == propInfos) {
                 throw new ArgumentNullException("propInfos");
             }
-            if (props.ContainsKey(uri)) {
-                props[uri].AddRange(propInfos);
+            if (_props.ContainsKey(uri)) {
+                _props[uri].AddRange(propInfos);
                 return true;
             }
-            props.Add(uri, propInfos);
+            _props.Add(uri, propInfos);
             return true;
         }
 
-        internal bool delete(String uri, PropInfo propInfo) {
+        internal bool Delete(String uri, PropInfo propInfo) {
             if (null == uri) {
                 throw new ArgumentNullException("uri");
             }
             if (null == propInfo) {
                 throw new ArgumentNullException("propInfo");
             }
-            if (!props.ContainsKey(uri)) {
+            if (!_props.ContainsKey(uri)) {
                 return true;
             }
-            var list = props[uri].Where(info => info.prop.Name.Equals(propInfo.prop.Name));
+            var list = _props[uri].Where(info => info.Prop.Name.Equals(propInfo.Prop.Name));
             var propInfos = list as PropInfo[] ?? list.ToArray();
             if (propInfos.Any()) {
-                props[uri].Remove(propInfos.ElementAt(0));
+                _props[uri].Remove(propInfos.ElementAt(0));
             }
             return true;
         }
@@ -56,6 +56,6 @@ namespace WebDAVServer.api.helpers {
 
 
     internal sealed class PropInfo {
-        internal XElement prop;
+        internal XElement Prop;
     }
 }

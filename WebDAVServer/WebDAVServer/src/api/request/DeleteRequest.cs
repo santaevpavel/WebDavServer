@@ -9,55 +9,55 @@ using WebDAVServer.file;
 namespace WebDAVServer.api.request {
     internal sealed class DeleteRequest : Request {
 
-        private String mFileName;
-        private int code;
+        private String _mFileName;
+        private int _code;
 
         public DeleteRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            requestType = RequestType.DELETE;
+            RequestType = RequestType.Delete;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
-            mFileName = url.Remove(0, host.Length);
+            _mFileName = url.Remove(0, host.Length);
             Console.WriteLine("Parsed DELETE REQUEST " + ToString());
         }
 
-        internal String getFileName() {
-            return mFileName;
+        internal String GetFileName() {
+            return _mFileName;
         }
 
-        internal void setFileName(String fileName) {
-            mFileName = fileName;
+        internal void SetFileName(String fileName) {
+            _mFileName = fileName;
         }
 
         public override string ToString() {
-            return string.Format("mFileName: {0}", mFileName);
+            return string.Format("mFileName: {0}", _mFileName);
         }
 
-        internal override Task doCommandAsync() {
+        internal override Task DoCommandAsync() {
             throw new Exception("Call sync doCommand");
         }
 
-        internal override void doCommand() {
+        internal override void DoCommand() {
             try {
-                FileManager.getInstanse().deleteFileOrDir(mFileName);
-                code = HttpStatusCodes.SUCCESS_NO_CONTENT;
+                FileManager.GetInstanse().DeleteFileOrDir(_mFileName);
+                _code = HttpStatusCodes.SuccessNoContent;
             } catch (FileNotFoundException) {
-                code = HttpStatusCodes.CLIENT_ERROR_NOT_FOUND;
+                _code = HttpStatusCodes.ClientErrorNotFound;
             } catch (DirectoryNotFoundException) {
-                code = HttpStatusCodes.CLIENT_ERROR_NOT_FOUND;
+                _code = HttpStatusCodes.ClientErrorNotFound;
             } catch (UnauthorizedAccessException) {
-                code = HttpStatusCodes.CLIENT_ERROR_LOCKED;
+                _code = HttpStatusCodes.ClientErrorLocked;
             }
         }
 
-        internal override Response getResponse() {
-            return new Response(code);
+        internal override Response GetResponse() {
+            return new Response(_code);
         }
 
-        internal override bool isAsync() {
+        internal override bool IsAsync() {
             return false;
         }
     }

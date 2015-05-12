@@ -4,68 +4,68 @@ using WebDAVServer.api.request;
 
 namespace WebDAVServer.file {
     internal sealed class LockManager {
-        private static LockManager instance;
-        private volatile Dictionary<String, LockInfo> locks = new Dictionary<String, LockInfo>();
+        private static LockManager _instance;
+        private volatile Dictionary<String, LockInfo> _locks = new Dictionary<String, LockInfo>();
 
         private LockManager() {    
         }
 
-        internal static LockManager getInstanse() {
-            return instance ?? (instance = new LockManager());
+        internal static LockManager GetInstanse() {
+            return _instance ?? (_instance = new LockManager());
         }
 
-        internal LockInfo getLockInfo(String uri) {
+        internal LockInfo GetLockInfo(String uri) {
             if (null == uri) {
                 throw new ArgumentNullException("uri");
             }
-            return locks.ContainsKey(uri) ? locks[uri] : null;
+            return _locks.ContainsKey(uri) ? _locks[uri] : null;
         }
 
-        internal void lockFile(String uri, LockInfo lockInfo) {
+        internal void LockFile(String uri, LockInfo lockInfo) {
             if (null == uri) {
                 throw new ArgumentNullException("uri");
             }
             if (null == lockInfo) {
                 throw new ArgumentNullException("lockInfo");
             }
-            locks.Remove(uri);
-            locks.Add(uri, lockInfo);
+            _locks.Remove(uri);
+            _locks.Add(uri, lockInfo);
         }
 
-        internal bool unlock(String uri, String token) {
+        internal bool Unlock(String uri, String token) {
             if (null == uri) {
                 throw new ArgumentNullException("uri");
             }
             if (null == token) {
                 throw new ArgumentNullException("token");
             }
-            if (!locks.ContainsKey(uri) || !locks[uri].lockToken.Equals(token)) {
+            if (!_locks.ContainsKey(uri) || !_locks[uri].LockToken.Equals(token)) {
                 return false;
             }
-            locks.Remove(uri);
+            _locks.Remove(uri);
             return true;
         }
     }
 
 
     internal sealed class LockInfo {
-        internal String path;
-        internal LockType lockType;
-        internal LockScope lockScope;
-        internal int depth = -1;
-        internal String owner = "";
-        internal String lockToken = "";
+        internal String Path;
+        internal LockType LockType;
+        internal LockScope LockScope;
+        internal int Depth = -1;
+        internal String Owner = "";
+        internal String LockToken = "";
 
         internal LockInfo() {}
 
         internal LockInfo(String path, LockType lockType, LockScope lockScope,
             int depth, String owner, String lockToken) {
-            this.path = path;
-            this.lockType = lockType;
-            this.lockScope = lockScope;
-            this.depth = depth;
-            this.owner = owner;
-            this.lockToken = lockToken;
+            Path = path;
+            LockType = lockType;
+            LockScope = lockScope;
+            Depth = depth;
+            Owner = owner;
+            LockToken = lockToken;
         }
     }
 }

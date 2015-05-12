@@ -11,58 +11,58 @@ using WebDAVServer.file;
 namespace WebDAVServer.api.request {
     internal sealed class PutRequest : Request {
 
-        private String mFileName;
-        private readonly Stream fileStream;
-        private int code;
-        private readonly long size;
+        private String _mFileName;
+        private readonly Stream _fileStream;
+        private int _code;
+        private readonly long _size;
 
         public PutRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            requestType = RequestType.PUT;
+            RequestType = RequestType.Put;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
-            mFileName = url.Remove(0, host.Length);
-            fileStream = httpListenerRequest.InputStream;
-            size = httpListenerRequest.ContentLength64;
+            _mFileName = url.Remove(0, host.Length);
+            _fileStream = httpListenerRequest.InputStream;
+            _size = httpListenerRequest.ContentLength64;
             Console.WriteLine("Parsed PUT REQUEST " + ToString());
             Console.WriteLine("SIZE = " + httpListenerRequest.ContentLength64);
         }
 
-        internal String getFileName() {
-            return mFileName;
+        internal String GetFileName() {
+            return _mFileName;
         }
 
-        internal void setFileName(String fileName) {
-            mFileName = fileName;
+        internal void SetFileName(String fileName) {
+            _mFileName = fileName;
         }
 
         public override string ToString() {
-            return string.Format("mFileName: {0}", mFileName);
+            return string.Format("mFileName: {0}", _mFileName);
         }
 
-        internal override async Task doCommandAsync() {
-            if (FileManager.getInstanse().getFileInfo(mFileName).Exists) {
-                FileManager.getInstanse().deleteFileOrDir(mFileName);
+        internal override async Task DoCommandAsync() {
+            if (FileManager.GetInstanse().GetFileInfo(_mFileName).Exists) {
+                FileManager.GetInstanse().DeleteFileOrDir(_mFileName);
             }
-            if (FileManager.getInstanse().getDirInfo(mFileName).Exists) {
-                FileManager.getInstanse().deleteFileOrDir(mFileName);
+            if (FileManager.GetInstanse().GetDirInfo(_mFileName).Exists) {
+                FileManager.GetInstanse().DeleteFileOrDir(_mFileName);
             }
-            code = HttpStatusCodes.SUCCESS_CREATED;
+            _code = HttpStatusCodes.SuccessCreated;
             var progress = new ProgressView(Console.BufferWidth);
             long sum = 0;
-            using (var file = FileManager.getInstanse().createFile(mFileName)) {
-                var buffer = new byte[ProgramCostants.DEFAUT_BUFFER_SIZE];
+            using (var file = FileManager.GetInstanse().CreateFile(_mFileName)) {
+                var buffer = new byte[ProgramCostants.DefautBufferSize];
                 try {
                     while (true) {
-                        var count = await fileStream.ReadAsync(buffer, 0, buffer.Length);
+                        var count = await _fileStream.ReadAsync(buffer, 0, buffer.Length);
                         if (count > 0) {
                             sum += count;
                             await file.WriteAsync(buffer, 0, count);
-                            if (size > ProgramCostants.MIN_PROGRESS_VIEWING_SIZE) {
-                                progress.drawProgress((double)sum / size);
+                            if (_size > ProgramCostants.MinProgressViewingSize) {
+                                progress.DrawProgress((double)sum / _size);
                             }
                         } else {
                             Console.WriteLine();
@@ -72,45 +72,45 @@ namespace WebDAVServer.api.request {
                 } catch (HttpListenerException e) {
                     Console.WriteLine(e.Message);
                 }
-                fileStream.Close();
-                code = HttpStatusCodes.SUCCESS_CREATED;
+                _fileStream.Close();
+                _code = HttpStatusCodes.SuccessCreated;
             }
         }
 
-        internal override void doCommand() {
+        internal override void DoCommand() {
             throw new Exception("Call async doCommandAsync");
         }
 
-        internal override Response getResponse() {
+        internal override Response GetResponse() {
                 Response response;
-                switch (code) {
-                    case HttpStatusCodes.SUCCESS_CREATED: {
-                            response = new Response(code);
+                switch (_code) {
+                    case HttpStatusCodes.SuccessCreated: {
+                            response = new Response(_code);
                             return response;
                         }
-                    case HttpStatusCodes.SUCCESS_MULTISTATUS: {
+                    case HttpStatusCodes.SuccessMultistatus: {
                             String str;
                             try {
-                                str = FileManager.getInstanse().getDirInfo(mFileName).Exists
-                                    ? PropFindHelper.getFilesPropInDir(mFileName, 0)
-                                    : PropFindHelper.getFilesProp(mFileName);
-                                response = new Response(HttpStatusCodes.SUCCESS_MULTISTATUS);
+                                str = FileManager.GetInstanse().GetDirInfo(_mFileName).Exists
+                                    ? PropFindHelper.GetFilesPropInDir(_mFileName, 0)
+                                    : PropFindHelper.GetFilesProp(_mFileName);
+                                response = new Response(HttpStatusCodes.SuccessMultistatus);
                             } catch (DirectoryNotFoundException) {
                                 str = "";
-                                response = new Response(HttpStatusCodes.CLIENT_ERROR_NOT_FOUND);
+                                response = new Response(HttpStatusCodes.ClientErrorNotFound);
                             }
                             Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
-                            response.setContentLength(stream.Length);
-                            response.setData(stream);
-                            response.addHeaderValue("Content-Type", "application/xml; charset=\"utf-8\"");
+                            response.SetContentLength(stream.Length);
+                            response.SetData(stream);
+                            response.AddHeaderValue("Content-Type", "application/xml; charset=\"utf-8\"");
                             return response;
                         }
                     default:
-                        throw new Exception("Bad code " + code);
+                        throw new Exception("Bad code " + _code);
                 }
         }
 
-        internal override bool isAsync() {
+        internal override bool IsAsync() {
             return true;
         }
     }

@@ -5,27 +5,27 @@ using WebDAVServer.api.response;
 
 namespace WebDAVServer.api.request.@base {
     internal abstract class Request {
-        protected RequestType requestType;
-        protected HttpListenerRequest mRequest;
+        protected RequestType RequestType;
+        protected HttpListenerRequest MRequest;
 
         protected Request(HttpListenerRequest httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            mRequest = httpListenerRequest;
+            MRequest = httpListenerRequest;
         }
 
-        internal RequestType getRequestType() {
-            return requestType;
+        internal RequestType GetRequestType() {
+            return RequestType;
         }
 
-        internal abstract Task doCommandAsync();
+        internal abstract Task DoCommandAsync();
 
-        internal abstract void doCommand();
+        internal abstract void DoCommand();
 
-        internal abstract Response getResponse();
+        internal abstract Response GetResponse();
 
-        internal abstract bool isAsync();
+        internal abstract bool IsAsync();
 
     }
 }

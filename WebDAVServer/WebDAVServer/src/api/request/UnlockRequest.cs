@@ -8,58 +8,58 @@ using WebDAVServer.file;
 namespace WebDAVServer.api.request {
     internal sealed class UnlockRequest : Request {
 
-        private String mFileName;
-        private int code;
-        private readonly String token;
+        private String _mFileName;
+        private int _code;
+        private readonly String _token;
 
         public UnlockRequest(HttpListenerRequest httpListenerRequest)
             : base(httpListenerRequest) {
             if (null == httpListenerRequest) {
                 throw new ArgumentNullException("httpListenerRequest");
             }
-            requestType = RequestType.UNLOCK;
+            RequestType = RequestType.Unlock;
             var url = httpListenerRequest.Url.ToString();
             var host = httpListenerRequest.Url.GetLeftPart(UriPartial.Authority);
-            mFileName = url.Remove(0, host.Length);
+            _mFileName = url.Remove(0, host.Length);
             var tokens = httpListenerRequest.Headers.GetValues("Lock-Token");
             if (tokens != null && tokens.Length > 0) {
-                token = tokens[0].Substring(1, tokens[0].Length - 2);
+                _token = tokens[0].Substring(1, tokens[0].Length - 2);
             }
             Console.WriteLine("Parsed UNLOCK REQUEST " + ToString());
         }
 
-        internal String getFileName() {
-            return mFileName;
+        internal String GetFileName() {
+            return _mFileName;
         }
 
-        internal void setFileName(String fileName) {
-            mFileName = fileName;
+        internal void SetFileName(String fileName) {
+            _mFileName = fileName;
         }
 
         public override string ToString() {
-            return string.Format("mFileName: {0}", mFileName);
+            return string.Format("mFileName: {0}", _mFileName);
         }
 
-        internal override Task doCommandAsync() {
+        internal override Task DoCommandAsync() {
             throw new Exception("Call sync doCommand");
         }
 
-        internal override void doCommand() {
-            code = HttpStatusCodes.SUCCESS_NO_CONTENT;
-            var lockInfo = LockManager.getInstanse().getLockInfo(mFileName);
-            if (null != lockInfo || null != token) {
-                code = LockManager.getInstanse().unlock(mFileName, token) ? 
-                    HttpStatusCodes.SUCCESS_NO_CONTENT : HttpStatusCodes.CLIENT_ERROR_FAILED_DEPENDENCY;
+        internal override void DoCommand() {
+            _code = HttpStatusCodes.SuccessNoContent;
+            var lockInfo = LockManager.GetInstanse().GetLockInfo(_mFileName);
+            if (null != lockInfo || null != _token) {
+                _code = LockManager.GetInstanse().Unlock(_mFileName, _token) ? 
+                    HttpStatusCodes.SuccessNoContent : HttpStatusCodes.ClientErrorFailedDependency;
             } else {
-                code = HttpStatusCodes.CLIENT_ERROR_FAILED_DEPENDENCY;
+                _code = HttpStatusCodes.ClientErrorFailedDependency;
             }
         }
 
-        internal override Response getResponse() {
-            return new Response(code);
+        internal override Response GetResponse() {
+            return new Response(_code);
         }
 
-        internal override bool isAsync() {
+        internal override bool IsAsync() {
             return false;
         }
     }

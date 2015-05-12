@@ -9,99 +9,99 @@ using WebDAVServer.file;
 namespace WebDAVServer.core {
     internal sealed class Server : IDisposable {
 
-        private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
-        private readonly int mPort;
-        private readonly HttpListener mListener = new HttpListener();
-        private bool isFinished;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly int _mPort;
+        private readonly HttpListener _mListener = new HttpListener();
+        private bool _isFinished;
 
         internal Server(String path, int port) {
             if (null != path) {
-                FileManager.init(path);
+                FileManager.Init(path);
             }
-            mPort = port;
+            _mPort = port;
         }
 
-        internal void start() {
+        internal void Start() {
             if (!HttpListener.IsSupported) {
                 Console.WriteLine("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
-            mListener.Prefixes.Add(String.Format("http://localhost:{0}/", mPort));
-            mListener.Start();
-            Console.WriteLine("Listening on port " + mPort + "...");
+            _mListener.Prefixes.Add(String.Format("http://localhost:{0}/", _mPort));
+            _mListener.Start();
+            Console.WriteLine("Listening on port " + _mPort + "...");
             while (true) {
-                var context = mListener.GetContext();
-                readAndReply(context);
-                if (isFinished) {
+                var context = _mListener.GetContext();
+                ReadAndReply(context);
+                if (_isFinished) {
                     break;
                 }
             }
         }
 
-        private static async void readAndReply(HttpListenerContext context) {
+        private static async void ReadAndReply(HttpListenerContext context) {
             var isFailed = false;
             var request = context.Request;
-            logRequest(request);
-            var requestObj = await RequestParser.parseRequestAsync(request) ?? new TestRequest(request);
-            if (requestObj.getRequestType().Equals(RequestType.PUT)) {
-                context.Response.StatusCode = HttpStatusCodes.INFO_CONTINUE;
+            LogRequest(request);
+            var requestObj = await RequestParser.ParseRequestAsync(request) ?? new TestRequest(request);
+            if (requestObj.GetRequestType().Equals(RequestType.Put)) {
+                context.Response.StatusCode = HttpStatusCodes.InfoContinue;
                 context.Response.ContentLength64 = 0;
             }
             Response response = null;
             try {
-                if (requestObj.isAsync()) {
-                    await requestObj.doCommandAsync();
+                if (requestObj.IsAsync()) {
+                    await requestObj.DoCommandAsync();
                 } else {
-                    requestObj.doCommand();
+                    requestObj.DoCommand();
                 }
-                response = requestObj.getResponse();
+                response = requestObj.GetResponse();
             } catch (Exception e) {
-                LOGGER.Error(e.Message);
+                Logger.Error(e.Message);
                 isFailed = true;
             }
 
             if (!isFailed) {
-                response.setResponse(context.Response);
+                response.SetResponse(context.Response);
             } else {
-                context.Response.StatusCode = HttpStatusCodes.SERVER_ERROR_INTERNAL_ERROR;
+                context.Response.StatusCode = HttpStatusCodes.ServerErrorInternalError;
                 context.Response.ContentLength64 = 0;
                 context.Response.OutputStream.Close();
             }
-            logResponse(context.Response);
+            LogResponse(context.Response);
         }
 
-        private static void logRequest(HttpListenerRequest request) {
+        private static void LogRequest(HttpListenerRequest request) {
             if (null == request) {
                 throw new ArgumentNullException("request");
             }
-            LOGGER.Trace("HTTP " + request.ProtocolVersion + " REQUEST " + request.HttpMethod + " " + request.Url);
+            Logger.Trace("HTTP " + request.ProtocolVersion + " REQUEST " + request.HttpMethod + " " + request.Url);
             var keys = request.Headers.AllKeys;
             foreach (var key in keys) {
                 var strings = request.Headers.GetValues(key);
                 if (strings != null) {
-                    LOGGER.Trace("  " + key + " -> " + strings[0]);
+                    Logger.Trace("  " + key + " -> " + strings[0]);
                 }
             }
         }
 
-        private static void logResponse(HttpListenerResponse response) {
+        private static void LogResponse(HttpListenerResponse response) {
             if (null == response) {
                 throw new ArgumentNullException("response");
             }
-            LOGGER.Trace("RESPONSE " + response.StatusCode + " " + response.StatusDescription);
+            Logger.Trace("RESPONSE " + response.StatusCode + " " + response.StatusDescription);
             var keys = response.Headers.AllKeys;
             foreach (var key in keys) {
                 var strings = response.Headers.GetValues(key);
                 if (strings != null) {
-                    LOGGER.Trace("  " + key + " -> " + strings[0]);
+                    Logger.Trace("  " + key + " -> " + strings[0]);
                 }
             }
         }
 
         public void Dispose() {
-            isFinished = true;
-            mListener.Stop();
-            mListener.Close();
+            _isFinished = true;
+            _mListener.Stop();
+            _mListener.Close();
         }
     }
 }
